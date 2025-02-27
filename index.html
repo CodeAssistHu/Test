@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redirecting...</title>
+    <script>
+        document.addEventListener("DOMContentLoaded", async function () {
+            document.body.innerHTML = "<p>Redirecting to README.md... Please wait.</p>";
+
+            const urlParts = window.location.pathname.split('/');
+            const user = urlParts[1];  // GitHub username/org
+            const repo = urlParts[2];  // Repository name
+
+            if (user && repo) {
+                await redirectToReadme(user, repo);
+            } else {
+                document.body.innerHTML = "<p>🚨 Error: Repository not detected. Please navigate manually.</p>";
+            }
+        });
+
+        async function redirectToReadme(user, repo) {
+            try {
+                const branches = ["main", "master"];
+                for (const branch of branches) {
+                    let response = await fetch(`https://github.com/${user}/${repo}/blob/${branch}/README.md`);
+                    if (response.ok) {
+                        window.location.replace(`https://github.com/${user}/${repo}/blob/${branch}/README.md`);
+                        return;
+                    }
+                }
+                document.body.innerHTML = "<p>❌ README.md not found in main or master branch.</p>";
+            } catch (error) {
+                document.body.innerHTML = "<p>⚠️ Error detecting repository structure.</p>";
+            }
+        }
+    </script>
+</head>
+<body>
+    <p>If not redirected, <a id="manualLink" href="#">click here</a>.</p>
+</body>
+</html>
+
