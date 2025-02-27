@@ -1,43 +1,150 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Redirecting...</title>
-    <script>
-        document.addEventListener("DOMContentLoaded", async function () {
-            document.body.innerHTML = "<p>Redirecting to README.md... Please wait.</p>";
-
-            const urlParts = window.location.pathname.split('/');
-            const user = urlParts[1];  // GitHub username/org
-            const repo = urlParts[2];  // Repository name
-
-            if (user && repo) {
-                await redirectToReadme(user, repo);
-            } else {
-                document.body.innerHTML = "<p>🚨 Error: Repository not detected. Please navigate manually.</p>";
-            }
-        });
-
-        async function redirectToReadme(user, repo) {
-            try {
-                const branches = ["main", "master"];
-                for (const branch of branches) {
-                    let response = await fetch(`https://github.com/${user}/${repo}/blob/${branch}/README.md`);
-                    if (response.ok) {
-                        window.location.replace(`https://github.com/${user}/${repo}/blob/${branch}/README.md`);
-                        return;
-                    }
-                }
-                document.body.innerHTML = "<p>❌ README.md not found in main or master branch.</p>";
-            } catch (error) {
-                document.body.innerHTML = "<p>⚠️ Error detecting repository structure.</p>";
-            }
+    <title>ECE 3849 Lab 1: Digital Oscilloscope</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            line-height: 1.6;
         }
-    </script>
+        h1, h2, h3 {
+            color: #333;
+        }
+        p, ul, ol {
+            margin-bottom: 15px;
+        }
+        code {
+            background-color: #f0f0f0;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+        pre {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            padding: 10px;
+            overflow-x: auto;
+            border-radius: 5px;
+        }
+        .buy-answer {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .buy-answer:hover {
+            background-color: #218838;
+        }
+    </style>
 </head>
 <body>
-    <p>If not redirected, <a id="manualLink" href="#">click here</a>.</p>
+
+<h1>ECE 3849 Lab 1: Digital Oscilloscope</h1>
+
+<p>This lab will implement a 1 Msps digital oscilloscope by generating a signal, reading it with an ADC, and displaying it on the LCD screen.</p>
+
+<h2>Objectives</h2>
+<ul>
+    <li>Develop a realistic real-time application without an operating system</li>
+    <li>Meet tight timing constraints</li>
+    <li>Use interrupt prioritization and preemption</li>
+    <li>Write performance-sensitive code</li>
+    <li>Access shared data safely</li>
+    <li>Use real-time debugging techniques</li>
+</ul>
+
+<h2>Assignment</h2>
+<p>In this lab, you will write software that will turn the lab kit into a simple 1 Msps oscilloscope, resembling the following figure. When drawing, ensure samples are interconnected with lines for a smooth signal display.</p>
+
+<h3>Part 0: Copy CCS Project</h3>
+<p>Copy your Lab 0 CCS project by selecting it in Project Explorer and pressing Ctrl+C, then Ctrl+V. Use the convention for online code submission “ece3849_lab1_username1_username2,” substituting your username. Keep your older completed labs intact.</p>
+
+<h3>Part 1: Signal Source</h3>
+<p>In this part, you will generate a signal for your oscilloscope to measure using PWM output from the same board.</p>
+<pre><code>
+#include "inc/hw_memmap.h"
+#include "driverlib/gpio.h"
+#include "driverlib/pwm.h"
+#include "driverlib/pin_map.h"
+
+#define PWM_FREQUENCY 20000 // PWM frequency = 20 kHz
+
+SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOF);
+GPIOPinTypePWM(GPIO_PORTF_BASE, GPIO_PIN_2);
+GPIOPinConfigure(GPIO_PF2_M0PWM2);
+GPIOPadConfigSet(GPIO_PORTF_BASE, GPIO_PIN_2, GPIO_STRENGTH_2MA, GPIO_PIN_TYPE_STD);
+
+SysCtlPeripheralEnable(SYSCTL_PERIPH_PWM0);
+PWMClockSet(PWM0_BASE, PWM_SYSCLK_DIV_1);
+PWMGenConfigure(PWM0_BASE, PWM_GEN_1, PWM_GEN_MODE_DOWN | PWM_GEN_MODE_NO_SYNC);
+PWMGenPeriodSet(PWM0_BASE, PWM_GEN_1, roundf((float)gSystemClock/PWM_FREQUENCY));
+PWMPulseWidthSet(PWM0_BASE, PWM_OUT_2, roundf((float)gSystemClock/PWM_FREQUENCY*0.4f));
+PWMOutputState(PWM0_BASE, PWM_OUT_2_BIT, true);
+PWMGenEnable(PWM0_BASE, PWM_GEN_1);
+</code></pre>
+<p>Connect PE0 to PF2 on the EK-TM4C1294XL using a jumper wire.</p>
+
+<h3>Part 2: ADC Sampling</h3>
+<p>You will configure ADC1, using the ADC0 initialization in buttons.c as a reference. The following incomplete code should provide a starting point:</p>
+<pre><code>
+SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIO?);
+GPIOPinTypeADC(...); // GPIO setup for analog input AIN3
+
+SysCtlPeripheralEnable(SYSCTL_PERIPH_ADC0);
+SysCtlPeripheralEnable(SYSCTL_PERIPH_ADC1);
+
+uint32_t pll_frequency = SysCtlFrequencyGet(CRYSTAL_FREQUENCY);
+uint32_t pll_divisor = (pll_frequency - 1) / (16 * ADC_SAMPLING_RATE) + 1;
+
+ADCClockConfigSet(ADC0_BASE, ADC_CLOCK_SRC_PLL | ADC_CLOCK_RATE_FULL, pll_divisor);
+ADCClockConfigSet(ADC1_BASE, ADC_CLOCK_SRC_PLL | ADC_CLOCK_RATE_FULL, pll_divisor);
+
+ADCSequenceDisable(...);
+ADCSequenceConfigure(...); // specify the “Always” trigger
+ADCSequenceStepConfigure(...); // sample channel 3 (AIN3)
+ADCSequenceEnable(...);
+
+ADCIntEnable(...);
+IntPrioritySet(...);
+IntEnable(...);
+</code></pre>
+<p>The recommended structure of the ADC ISR:</p>
+<pre><code>
+#define ADC_BUFFER_SIZE 2048
+#define ADC_BUFFER_WRAP(i) ((i) & (ADC_BUFFER_SIZE - 1))
+
+volatile int32_t gADCBufferIndex = ADC_BUFFER_SIZE - 1;
+volatile uint16_t gADCBuffer[ADC_BUFFER_SIZE];
+volatile uint32_t gADCErrors = 0;
+
+void ADC_ISR(void) {
+    ADC1_ISC_R = ADCISC_IN0; // clear interrupt flag
+    if(ADC1_OSTAT_R & ADC_OSTAT_OV0) {
+        gADCErrors++;
+        ADC1_OSTAT_R = ADC_OSTAT_OV0; // clear overflow condition
+    }
+    gADCBufferIndex = ADC_BUFFER_WRAP(gADCBufferIndex + 1);
+    gADCBuffer[gADCBufferIndex] = ADC1_SSFIFO0_R;
+}
+</code></pre>
+
+<h3>Part 3: Draw Screen Background</h3>
+<p>Draw a grid on the screen with 20 pixels per division to display the signal onto.</p>
+
+<h3>Part 4: Draw the Signal to the Screen</h3>
+<p>Display the signal on the screen using a snapshot approach where the user presses a button to take a snapshot of the most recent 128 samples.</p>
+
+<h2>Submitting Source Code</h2>
+<p>Ensure your Lab 1 project is named “ece3849_lab1_username”. Clean your project, right-click on your project, select "Export...", choose General → "Archive File", and submit the resulting .zip file to Canvas.</p>
+
+<a href="#" class="buy-answer">Buy Answer</a>
+
 </body>
 </html>
-
+```
