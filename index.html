@@ -1,196 +1,431 @@
-<p align="justify" style='color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><a href="https://programming.engineering/product/ece-3849-lab-1-digital-oscilloscope/" target="_blank" rel="noopener noreferrer"><strong>Buy Answer</strong></a></p>
-<p align="justify" style='color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><span style="font-size: medium;">This lab will implement a 1 Msps digital oscilloscope by generating a signal, reading it with an ADC, and displaying it on the LCD screen.</span></p>
-<p align="justify" style='color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><span style="font-size: medium;">To complete all labs in this course, you will need to submit your source for that lab, and demonstrate the lab in operation to one of the course staff (a TA or tutor). You will be graded on the completion of the steps in this lab document. After you have received a signoff, follow the instructions at the end of the document to submit your source code.</span></p>
-<p style='text-align: start;color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><span style="color: rgb(67, 67, 67);"><span style="font-size: large;">Objectives</span></span></p>
-<ul style='text-align: start;color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'>
-    <li>
-        <p><span style="font-size: medium;">Develop a realistic real-time application without an operating system</span></p>
-    </li>
-    <li>
-        <p><span style="font-size: medium;">Meet tight timing constraints</span></p>
-    </li>
-    <li>
-        <p><span style="font-size: medium;">Use interrupt prioritization and preemption</span></p>
-    </li>
-    <li>
-        <p><span style="font-size: medium;">Write performance-sensitive code</span></p>
-    </li>
-    <li>
-        <p><span style="font-size: medium;">Access shared data safely</span></p>
-    </li>
-    <li>
-        <p><span style="font-size: medium;">Use real-time debugging techniques</span></p>
-    </li>
+<h1 class="wp-block-post-title">
+	ECE 3849 Lab 1: Digital Oscilloscope
+</h1>
+<p>
+	<a href="https://programming.engineering/product/ece-3849-lab-1-digital-oscilloscope/" target="_blank" rel="noopener noreferrer">
+		<strong>
+			 Buy Answer
+		</strong>
+	</a>
+</p>
+<p>
+	This lab will implement a 1 Msps digital oscilloscope by generating a signal, reading it with an ADC, and displaying it on the LCD screen.
+</p>
+<p>
+	To complete all labs in this course, you will need to submit your source for that lab, and demonstrate the lab in operation to one of the course staff (a TA or tutor). You will be graded on the completion of the steps in this lab document. After you have received a signoff, follow the instructions at the end of the document to submit your source code.
+</p>
+<p>
+	Objectives
+</p>
+<ul>
+	<li>
+		<p>
+			Develop a realistic real-time application without an operating system
+		</p>
+	</li>
+	<li>
+		<p>
+			Meet tight timing constraints
+		</p>
+	</li>
+	<li>
+		<p>
+			Use interrupt prioritization and preemption
+		</p>
+	</li>
+	<li>
+		<p>
+			Write performance-sensitive code
+		</p>
+	</li>
+	<li>
+		<p>
+			Access shared data safely
+		</p>
+	</li>
+	<li>
+		<p>
+			Use real-time debugging techniques
+		</p>
+	</li>
 </ul>
-<p style='text-align: start;color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><span style="color: rgb(67, 67, 67);"><span style="font-size: large;">Assignment</span></span></p>
-<p align="justify" style='color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><span style="font-size: medium;">In this lab, you will write software that will turn the lab kit into a simple 1 Msps oscilloscope, resembling the following figure. When drawing, ensure samples are interconnected with lines for a smooth signal display.</span></p>
-<p align="justify" style='color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><span style="font-size: medium;">When writing your software, do not use a real-time operating system. You may use TivaWare, TI Graphics Library and other libraries. Document the source of any external libraries that you use in the lab report.</span></p>
-<p style='text-align: start;color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><br></p>
-<p align="center" style='color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><a name="page3" style="color: var(--wp--preset--color--basecolor);"></a><span style="font-size: large;">ECE 3849 Lab 1</span></p>
-<p style='text-align: start;color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><br></p>
-<p style='text-align: start;color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><span style="color: rgb(67, 67, 67);"><span style="font-size: large;">Part 0: Copy CCS Project</span></span></p>
-<p align="justify" style='color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><span style="font-size: medium;">Copy your Lab 0 CCS project by selecting it in Project Explorer and pressing Ctrl+c, then Ctrl+v. CCS should prompt you to rename the new project: use the convention for online code submission &ldquo;ece3849_lab1_username1_username2,&rdquo; substituting your username. When the time comes to submit your source code, follow the instructions at the end of the Lab.</span></p>
-<p align="justify" style='color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><span style="font-size: medium;">You will be reusing the button and joystick processing part of Lab 0. Keep your older completed labs intact.</span></p>
-<p style='text-align: start;color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><span style="color: rgb(67, 67, 67);"><span style="font-size: large;">Part 1: Signal Source</span></span></p>
-<p style='text-align: start;color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><span style="font-size: medium;">In this part, you will generate a signal for your oscilloscope to measure.</span></p>
-<p align="justify" style='color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><span style="font-size: medium;">You will generate a very simple signal for the oscilloscope to measure: a PWM (pulse-width modulation) output from the same board. For a more interesting signal source, you may use the microphone on the BoosterPack (GPIO: PD5, ADC: AIN6). However, the microphone signal looks best with a lower sampling rate, which you only implement as extra credit.</span></p>
-<p align="justify" style='color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><span style="font-size: medium;">Insert the following code into your main(). The #includes/#define go with the other #includes. The second part goes into the hardware initialization portion of your main(), after the clock has been configured. It is best to place this code in a separate function, such as signal_init(), and call it from main(). This code produces a 20 kHz PWM square wave with a 40% duty cycle on the PF2 (M0PWM2) and PF3 (M0PWM3) outputs.</span></p>
-<p style='text-align: start;color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><span style='font-family: "'><span style="font-size: small;">#include &lt;math.h&gt;</span></span></p>
-<p style='text-align: start;color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><span style='font-family: "'><span style="font-size: small;">#include &ldquo;inc/hw_memmap.h&rdquo;</span></span></p>
-<p style='text-align: start;color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><span style='font-family: "'><span style="font-size: small;">#include &ldquo;driverlib/gpio.h&rdquo;</span></span></p>
-<p style='text-align: start;color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><span style='font-family: "'><span style="font-size: small;">#include &ldquo;driverlib/pwm.h&rdquo;</span></span></p>
-<p style='text-align: start;color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><span style='font-family: "'><span style="font-size: small;">#include &ldquo;driverlib/pin_map.h&rdquo;</span></span></p>
-<p style='text-align: start;color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><span style='font-family: "'><span style="font-size: small;">#define PWM_FREQUENCY 20000 // PWM frequency = 20 kHz</span></span></p>
-<ul style='text-align: start;color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'>
-    <li>
-        <p><span style='font-family: "'><span style="font-size: small;">configure M0PWM2, at GPIO PF2, BoosterPack 1 header C1 pin 2 SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOF); GPIOPinTypePWM(GPIO_PORTF_BASE, GPIO_PIN_2); GPIOPinConfigure(GPIO_PF2_M0PWM2); GPIOPadConfigSet(GPIO_PORTF_BASE, GPIO_PIN_2,</span></span></p>
-    </li>
+<p>
+	Assignment
+</p>
+<p>
+	In this lab, you will write software that will turn the lab kit into a simple 1 Msps oscilloscope, resembling the following figure. When drawing, ensure samples are interconnected with lines for a smooth signal display.
+</p>
+<p>
+	When writing your software, do not use a real-time operating system. You may use TivaWare, TI Graphics Library and other libraries. Document the source of any external libraries that you use in the lab report.
+</p>
+<p>
+	ECE 3849 Lab 1
+</p>
+<p>
+	Part 0: Copy CCS Project
+</p>
+<p>
+	Copy your Lab 0 CCS project by selecting it in Project Explorer and pressing Ctrl+c, then Ctrl+v. CCS should prompt you to rename the new project: use the convention for online code submission &ldquo;ece3849_lab1_username1_username2,&rdquo; substituting your username. When the time comes to submit your source code, follow the instructions at the end of the Lab.
+</p>
+<p>
+	You will be reusing the button and joystick processing part of Lab 0. Keep your older completed labs intact.
+</p>
+<p>
+	Part 1: Signal Source
+</p>
+<p>
+	In this part, you will generate a signal for your oscilloscope to measure.
+</p>
+<p>
+	You will generate a very simple signal for the oscilloscope to measure: a PWM (pulse-width modulation) output from the same board. For a more interesting signal source, you may use the microphone on the BoosterPack (GPIO: PD5, ADC: AIN6). However, the microphone signal looks best with a lower sampling rate, which you only implement as extra credit.
+</p>
+<p>
+	Insert the following code into your main(). The #includes/#define go with the other #includes. The second part goes into the hardware initialization portion of your main(), after the clock has been configured. It is best to place this code in a separate function, such as signal_init(), and call it from main(). This code produces a 20 kHz PWM square wave with a 40% duty cycle on the PF2 (M0PWM2) and PF3 (M0PWM3) outputs.
+</p>
+<p>
+	#include &lt;math.h&gt;
+</p>
+<p>
+	#include &ldquo;inc/hw_memmap.h&rdquo;
+</p>
+<p>
+	#include &ldquo;driverlib/gpio.h&rdquo;
+</p>
+<p>
+	#include &ldquo;driverlib/pwm.h&rdquo;
+</p>
+<p>
+	#include &ldquo;driverlib/pin_map.h&rdquo;
+</p>
+<p>
+	#define PWM_FREQUENCY 20000 // PWM frequency = 20 kHz
+</p>
+<ul>
+	<li>
+		<p>
+			configure M0PWM2, at GPIO PF2, BoosterPack 1 header C1 pin 2 SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOF); GPIOPinTypePWM(GPIO_PORTF_BASE, GPIO_PIN_2); GPIOPinConfigure(GPIO_PF2_M0PWM2); GPIOPadConfigSet(GPIO_PORTF_BASE, GPIO_PIN_2,
+		</p>
+	</li>
 </ul>
-<p style='text-align: start;color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><span style='font-family: "'><span style="font-size: small;">GPIO_STRENGTH_2MA, GPIO_PIN_TYPE_STD);</span></span></p>
-<ul style='text-align: start;color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'>
-    <li>
-        <p><span style='font-family: "'><span style="font-size: small;">configure the PWM0 peripheral, gen 1, outputs 2 and 3 SysCtlPeripheralEnable(SYSCTL_PERIPH_PWM0);</span></span></p>
-        <ul>
-            <li>
-                <p><span style='font-family: "'><span style="font-size: small;">use system clock without division</span></span></p>
-            </li>
-        </ul>
-    </li>
+<p>
+	GPIO_STRENGTH_2MA, GPIO_PIN_TYPE_STD);
+</p>
+<ul>
+	<li>
+		<p>
+			configure the PWM0 peripheral, gen 1, outputs 2 and 3 SysCtlPeripheralEnable(SYSCTL_PERIPH_PWM0);
+		</p>
+		<ul>
+			<li>
+				<p>
+					use system clock without division
+				</p>
+			</li>
+		</ul>
+	</li>
 </ul>
-<p style='text-align: start;color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><br></p>
-<p align="center" style='color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><a name="page4" style="color: var(--wp--preset--color--basecolor);"></a><span style="font-size: large;">ECE 3849 Lab 1</span></p>
-<p style='text-align: start;color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><br></p>
-<p style='text-align: start;color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><span style='font-family: "'><span style="font-size: small;">PWMClockSet(PWM0_BASE, PWM_SYSCLK_DIV_1); PWMGenConfigure(PWM0_BASE, PWM_GEN_1,</span></span></p>
-<p style='text-align: start;color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><span style='font-family: "'><span style="font-size: small;">PWM_GEN_MODE_DOWN | PWM_GEN_MODE_NO_SYNC); PWMGenPeriodSet(PWM0_BASE, PWM_GEN_1,</span></span></p>
-<p style='text-align: start;color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><span style='font-family: "'><span style="font-size: small;">roundf((float)gSystemClock/PWM_FREQUENCY)); PWMPulseWidthSet(PWM0_BASE, PWM_OUT_2,</span></span></p>
-<p style='text-align: start;color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><span style='font-family: "'><span style="font-size: small;">roundf((float)gSystemClock/PWM_FREQUENCY*0.4f)); PWMOutputState(PWM0_BASE, PWM_OUT_2_BIT, true); PWMGenEnable(PWM0_BASE, PWM_GEN_1);</span></span></p>
-<p style='text-align: start;color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><span style="font-size: medium;">Connect PE0 to PF2 on the EK-TM4C1294XL using a jumper wire.</span></p>
-<p style='text-align: start;color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><br></p>
-<p align="center" style='color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><a name="page5" style="color: var(--wp--preset--color--basecolor);"></a><span style="font-size: large;">ECE 3849 Lab 1</span></p>
-<p style='text-align: start;color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><br></p>
-<p style='text-align: start;color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><span style="color: rgb(67, 67, 67);"><span style="font-size: large;">Part 2: ADC Sampling</span></span></p>
-<p style='text-align: start;color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><span style="font-size: medium;">This section handles capturing 1,000,000 samples per second with the ADC without missing any.</span></p>
-<p style='text-align: start;color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><span style="font-size: medium;">You will configure&nbsp;</span><span style="font-size: medium;"><strong>ADC1</strong></span><span style="font-size: medium;">, using the ADC0 initialization in buttons.c as a reference. The following incomplete code should provide a starting point.</span></p>
-<p style='text-align: start;color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><br></p>
-<p style='text-align: start;color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><span style='font-family: "'><span style="font-size: small;">SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIO?); GPIOPinTypeADC(&hellip;); // GPIO setup for analog input AIN3</span></span></p>
-<ul style='text-align: start;color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'>
-    <li>
-        <p><span style='font-family: "'><span style="font-size: small;">initialize ADC peripherals SysCtlPeripheralEnable(SYSCTL_PERIPH_ADC0); SysCtlPeripheralEnable(SYSCTL_PERIPH_ADC1);</span></span></p>
-    </li>
-    <li>
-        <p><span style='font-family: "'><span style="font-size: small;">ADC clock</span></span></p>
-    </li>
+<p>
+	ECE 3849 Lab 1
+</p>
+<p>
+	PWMClockSet(PWM0_BASE, PWM_SYSCLK_DIV_1); PWMGenConfigure(PWM0_BASE, PWM_GEN_1,
+</p>
+<p>
+	PWM_GEN_MODE_DOWN | PWM_GEN_MODE_NO_SYNC); PWMGenPeriodSet(PWM0_BASE, PWM_GEN_1,
+</p>
+<p>
+	roundf((float)gSystemClock/PWM_FREQUENCY)); PWMPulseWidthSet(PWM0_BASE, PWM_OUT_2,
+</p>
+<p>
+	roundf((float)gSystemClock/PWM_FREQUENCY*0.4f)); PWMOutputState(PWM0_BASE, PWM_OUT_2_BIT, true); PWMGenEnable(PWM0_BASE, PWM_GEN_1);
+</p>
+<p>
+	Connect PE0 to PF2 on the EK-TM4C1294XL using a jumper wire.
+</p>
+<p>
+	ECE 3849 Lab 1
+</p>
+<p>
+	Part 2: ADC Sampling
+</p>
+<p>
+	This section handles capturing 1,000,000 samples per second with the ADC without missing any.
+</p>
+<p>
+	You will configure&nbsp;
+	<strong>
+		 ADC1
+	</strong>
+	 , using the ADC0 initialization in buttons.c as a reference. The following incomplete code should provide a starting point.
+</p>
+<p>
+	SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIO?); GPIOPinTypeADC(&hellip;); // GPIO setup for analog input AIN3
+</p>
+<ul>
+	<li>
+		<p>
+			initialize ADC peripherals SysCtlPeripheralEnable(SYSCTL_PERIPH_ADC0); SysCtlPeripheralEnable(SYSCTL_PERIPH_ADC1);
+		</p>
+	</li>
+	<li>
+		<p>
+			ADC clock
+		</p>
+	</li>
 </ul>
-<p style='text-align: start;color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><span style='font-family: "'><span style="font-size: small;">uint32_t pll_frequency = SysCtlFrequencyGet(CRYSTAL_FREQUENCY); uint32_t pll_divisor = (pll_frequency &ndash; 1) / (16 * ADC_SAMPLING_RATE) + 1; // round up ADCClockConfigSet(ADC0_BASE, ADC_CLOCK_SRC_PLL | ADC_CLOCK_RATE_FULL,</span></span></p>
-<p style='text-align: start;color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><span style='font-family: "'><span style="font-size: small;">pll_divisor);</span></span></p>
-<p style='text-align: start;color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><span style='font-family: "'><span style="font-size: small;">ADCClockConfigSet(ADC1_BASE, ADC_CLOCK_SRC_PLL |</span></span></p>
-<p style='text-align: start;color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><span style='font-family: "'><span style="font-size: small;">ADC_CLOCK_RATE_FULL,</span></span></p>
-<p style='text-align: start;color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><span style='font-family: "'><span style="font-size: small;">pll_divisor);</span></span></p>
-<ul style='text-align: start;color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'>
-    <li>
-        <p><span style='font-family: "'><span style="font-size: small;">choose ADC1 sequence 0; disable before configuring ADCSequenceDisable(&hellip;);</span></span></p>
-    </li>
+<p>
+	uint32_t pll_frequency = SysCtlFrequencyGet(CRYSTAL_FREQUENCY); uint32_t pll_divisor = (pll_frequency &ndash; 1) / (16 * ADC_SAMPLING_RATE) + 1; // round up ADCClockConfigSet(ADC0_BASE, ADC_CLOCK_SRC_PLL | ADC_CLOCK_RATE_FULL,
+</p>
+<p>
+	pll_divisor);
+</p>
+<p>
+	ADCClockConfigSet(ADC1_BASE, ADC_CLOCK_SRC_PLL |
+</p>
+<p>
+	ADC_CLOCK_RATE_FULL,
+</p>
+<p>
+	pll_divisor);
+</p>
+<ul>
+	<li>
+		<p>
+			choose ADC1 sequence 0; disable before configuring ADCSequenceDisable(&hellip;);
+		</p>
+	</li>
 </ul>
-<p style='text-align: start;color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><span style='font-family: "'><span style="font-size: small;">ADCSequenceConfigure(&hellip;); // specify the &ldquo;Always&rdquo; trigger</span></span></p>
-<ul style='text-align: start;color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'>
-    <li>
-        <p><span style='font-family: "'><span style="font-size: small;">in the 0th step, sample channel 3 (AIN3)</span></span></p>
-    </li>
-    <li>
-        <p><span style='font-family: "'><span style="font-size: small;">enable interrupt, and make it the end of sequence ADCSequenceStepConfigure(&hellip;);</span></span></p>
-    </li>
-    <li>
-        <p><span style='font-family: "'><span style="font-size: small;">enable the sequence. it is now sampling ADCSequenceEnable(&hellip;);</span></span></p>
-    </li>
-    <li>
-        <p><span style='font-family: "'><span style="font-size: small;">enable sequence 0 interrupt in the ADC1 peripheral ADCIntEnable(&hellip;);</span></span></p>
-    </li>
+<p>
+	ADCSequenceConfigure(&hellip;); // specify the &ldquo;Always&rdquo; trigger
+</p>
+<ul>
+	<li>
+		<p>
+			in the 0th step, sample channel 3 (AIN3)
+		</p>
+	</li>
+	<li>
+		<p>
+			enable interrupt, and make it the end of sequence ADCSequenceStepConfigure(&hellip;);
+		</p>
+	</li>
+	<li>
+		<p>
+			enable the sequence. it is now sampling ADCSequenceEnable(&hellip;);
+		</p>
+	</li>
+	<li>
+		<p>
+			enable sequence 0 interrupt in the ADC1 peripheral ADCIntEnable(&hellip;);
+		</p>
+	</li>
 </ul>
-<p style='text-align: start;color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><span style='font-family: "'><span style="font-size: small;">IntPrioritySet(&hellip;); // set ADC1 sequence 0 interrupt priority</span></span></p>
-<ul style='text-align: start;color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'>
-    <li style="list-style-type: none;">
-        <ul>
-            <li>
-                <p><span style='font-family: "'><span style="font-size: small;">enable ADC1 sequence 0 interrupt in int. controller IntEnable(&hellip;);</span></span></p>
-            </li>
-        </ul>
-    </li>
+<p>
+	IntPrioritySet(&hellip;); // set ADC1 sequence 0 interrupt priority
+</p>
+<ul>
+	<li>
+		<ul>
+			<li>
+				<p>
+					enable ADC1 sequence 0 interrupt in int. controller IntEnable(&hellip;);
+				</p>
+			</li>
+		</ul>
+	</li>
 </ul>
-<p align="justify" style='color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><span style="font-size: medium;">The</span><span style='font-family: "'><span style="font-size: medium;"> CRYSTAL_FREQUENCY</span></span><span style="font-size: medium;">&nbsp;and</span><span style='font-family: "'><span style="font-size: medium;"> ADC_SAMPLING_RATE</span></span><span style="font-size: medium;">&nbsp;constants are defined in buttons.h. Include</span><span style='font-family: "'><span style="font-size: medium;"> &ldquo;sysctl_pll.h&rdquo;</span></span><span style="font-size: medium;">&nbsp;to be able to call</span><span style='font-family: "'><span style="font-size: medium;"> SysCtlFrequencyGet()</span></span><span style="font-size: medium;">. Please note that both ADCs must be initialized to the same clock configuration, as they share the clock divider.</span></p>
-<p align="justify" style='color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><span style="font-size: medium;">The correct arguments to the driver function calls can be found in the ADC chapter of the TivaWare Peripheral Driver Library User&rsquo;s Guide. To call the ADC driver functions, you need to include</span><span style='font-family: "'><span style="font-size: medium;"> &ldquo;driverlib/adc.h&rdquo;</span></span><span style="font-size: medium;">. It is helpful to browse the driver header files to find the correct constant to use. To jump straight to where the right constants are defined, Ctrl+click on another closely related constant, e.g.</span><span style='font-family: "'><span style="font-size: medium;"> ADC1_BASE</span></span><span style="font-size: medium;">.</span></p>
-<p style='text-align: start;color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><br></p>
-<p align="center" style='color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><a name="page6" style="color: var(--wp--preset--color--basecolor);"></a><span style="font-size: large;">ECE 3849 Lab 1</span></p>
-<p style='text-align: start;color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><br></p>
-<p align="justify" style='color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><span style="font-size: medium;">The ADC acquires a sample and interrupts every 1 &mu;s. The ADC ISR must process this sample before the next one is acquired. This gives the ADC ISR a relative deadline of only 120 CPU cycles. This is a tight timing requirement, but the Cortex-M4F is up to the challenge. We will need to perform some optimization to meet this goal. In a subsequent lab we will learn how to relax this timing constraint. The following is the recommended structure of the ADC ISR.</span></p>
-<p style='text-align: start;color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><span style='font-family: "'><span style="font-size: small;">#define ADC_BUFFER_SIZE 2048 // size must be a power of 2 // index wrapping macro</span></span></p>
-<p style='text-align: start;color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><span style='font-family: "'><span style="font-size: small;">#define ADC_BUFFER_WRAP(i) ((i) &amp; (ADC_BUFFER_SIZE &ndash; 1)) // latest sample index</span></span></p>
-<p style='text-align: start;color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><span style='font-family: "'><span style="font-size: small;">volatile int32_t gADCBufferIndex = ADC_BUFFER_SIZE &ndash; 1;</span></span></p>
-<p style='text-align: start;color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><span style='font-family: "'><span style="font-size: small;">volatile uint16_t gADCBuffer[ADC_BUFFER_SIZE]; // circular buffer volatile uint32_t gADCErrors = 0; // number of missed ADC deadlines</span></span></p>
-<p style='text-align: start;color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><span style='font-family: "'><span style="font-size: small;">void ADC_ISR(void)</span></span></p>
-<p style='text-align: start;color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><span style='font-family: "'><span style="font-size: small;">{</span></span></p>
-<ul style='text-align: start;color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'>
-    <li>
-        <p><span style='font-family: "'><span style="font-size: small;">clear ADC1 sequence0 interrupt flag in the ADCISC register &lt;&hellip;&gt;;</span></span></p>
-    </li>
-    <li>
-        <p><span style='font-family: "'><span style="font-size: small;">check for ADC FIFO overflow</span></span></p>
-    </li>
+<p>
+	The&nbsp;CRYSTAL_FREQUENCY&nbsp;and&nbsp;ADC_SAMPLING_RATE&nbsp;constants are defined in buttons.h. Include&nbsp;&ldquo;sysctl_pll.h&rdquo;&nbsp;to be able to call&nbsp;SysCtlFrequencyGet(). Please note that both ADCs must be initialized to the same clock configuration, as they share the clock divider.
+</p>
+<p>
+	The correct arguments to the driver function calls can be found in the ADC chapter of the TivaWare Peripheral Driver Library User&rsquo;s Guide. To call the ADC driver functions, you need to include&nbsp;&ldquo;driverlib/adc.h&rdquo;. It is helpful to browse the driver header files to find the correct constant to use. To jump straight to where the right constants are defined, Ctrl+click on another closely related constant, e.g.&nbsp;ADC1_BASE.
+</p>
+<p>
+	ECE 3849 Lab 1
+</p>
+<p>
+	The ADC acquires a sample and interrupts every 1 &mu;s. The ADC ISR must process this sample before the next one is acquired. This gives the ADC ISR a relative deadline of only 120 CPU cycles. This is a tight timing requirement, but the Cortex-M4F is up to the challenge. We will need to perform some optimization to meet this goal. In a subsequent lab we will learn how to relax this timing constraint. The following is the recommended structure of the ADC ISR.
+</p>
+<p>
+	#define ADC_BUFFER_SIZE 2048 // size must be a power of 2 // index wrapping macro
+</p>
+<p>
+	#define ADC_BUFFER_WRAP(i) ((i) &amp; (ADC_BUFFER_SIZE &ndash; 1)) // latest sample index
+</p>
+<p>
+	volatile int32_t gADCBufferIndex = ADC_BUFFER_SIZE &ndash; 1;
+</p>
+<p>
+	volatile uint16_t gADCBuffer[ADC_BUFFER_SIZE]; // circular buffer volatile uint32_t gADCErrors = 0; // number of missed ADC deadlines
+</p>
+<p>
+	void ADC_ISR(void)
+</p>
+<p>
+	{
+</p>
+<ul>
+	<li>
+		<p>
+			clear ADC1 sequence0 interrupt flag in the ADCISC register &lt;&hellip;&gt;;
+		</p>
+	</li>
+	<li>
+		<p>
+			check for ADC FIFO overflow
+		</p>
+	</li>
 </ul>
-<p style='text-align: start;color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><span style='font-family: "'><span style="font-size: small;">if(ADC1_OSTAT_R &amp; ADC_OSTAT_OV0) {</span></span></p>
-<p style='text-align: start;color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><span style='font-family: "'><span style="font-size: small;">gADCErrors++; // count errors</span></span></p>
-<p style='text-align: start;color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><span style='font-family: "'><span style="font-size: small;">ADC1_OSTAT_R = ADC_OSTAT_OV0; // clear overflow condition</span></span></p>
-<p style='text-align: start;color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><span style='font-family: "'><span style="font-size: small;">}</span></span></p>
-<p style='text-align: start;color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><span style='font-family: "'><span style="font-size: small;">gADCBufferIndex = ADC_BUFFER_WRAP(gADCBufferIndex + 1)</span></span></p>
-<ul style='text-align: start;color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'>
-    <li>
-        <p><span style='font-family: "'><span style="font-size: small;">read sample from the ADC1 sequence 0 FIFO gADCBuffer[gADCBufferIndex] = &lt;&hellip;&gt;;</span></span></p>
-    </li>
+<p>
+	if(ADC1_OSTAT_R &amp; ADC_OSTAT_OV0) {
+</p>
+<p>
+	gADCErrors++; // count errors
+</p>
+<p>
+	ADC1_OSTAT_R = ADC_OSTAT_OV0; // clear overflow condition
+</p>
+<p>
+	}
+</p>
+<p>
+	gADCBufferIndex = ADC_BUFFER_WRAP(gADCBufferIndex + 1)
+</p>
+<ul>
+	<li>
+		<p>
+			read sample from the ADC1 sequence 0 FIFO gADCBuffer[gADCBufferIndex] = &lt;&hellip;&gt;;
+		</p>
+	</li>
 </ul>
-<p style='text-align: start;color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><span style='font-family: "'><span style="font-size: small;">}</span></span></p>
-<p style='text-align: start;color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><span style="font-size: medium;">The ADC ISR is very simple:</span></p>
-<ol style='text-align: start;color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'>
-    <li>
-        <p><span style="font-size: medium;">Acknowledge the ADC interrupt (so it would not interrupt again on return).</span></p>
-    </li>
+<p>
+	}
+</p>
+<p>
+	The ADC ISR is very simple:
+</p>
+<ol>
+	<li>
+		<p>
+			Acknowledge the ADC interrupt (so it would not interrupt again on return).
+		</p>
+	</li>
 </ol>
-<ol start="2" style='text-align: start;color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'>
-    <li>
-        <p><span style="font-size: medium;">Detect if a deadline was missed by checking the overflow flag of the ADC hardware.</span></p>
-    </li>
+<ol start="2">
+	<li>
+		<p>
+			Detect if a deadline was missed by checking the overflow flag of the ADC hardware.
+		</p>
+	</li>
 </ol>
-<ol start="3" style='text-align: start;color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'>
-    <li>
-        <p><span style="font-size: medium;">Read a sample from the ADC and store it in a buffer array.</span></p>
-    </li>
+<ol start="3">
+	<li>
+		<p>
+			Read a sample from the ADC and store it in a buffer array.
+		</p>
+	</li>
 </ol>
-<p align="justify" style='color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><span style="font-size: medium;">Your tasks are to find how to clear the interrupt flag that originally caused this ISR to be called, and to read in the ADC sample. You must do this using&nbsp;</span><span style="font-size: medium;"><strong>direct register access</strong></span><span style="font-size: medium;">, not driver function calls. In this case the overhead associated with driver function calls is enough to start missing deadlines (you can verify this). To access registers directly, include</span><span style='font-family: "'><span style="font-size: small;"> &ldquo;inc/tm4c1294ncpdt.h&rdquo;</span></span><span style="font-size: medium;">.</span></p>
-<p style='text-align: start;color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><span style="font-size: medium;">To convert register names from the TM4C1294NCPDT Datasheet to C code:&nbsp;</span><span style='font-family: "'><span style="font-size: medium;">&lt;datasheet peripheral name&gt;</span></span><span style='font-family: "'><span style="font-size: medium;"><strong>&lt;register name&gt;</strong></span></span><span style='font-family: "'><span style="font-size: medium;"> &rarr; &lt;C peripheral name&gt;&lt;number&gt;_</span></span><span style='font-family: "'><span style="font-size: medium;"><strong>&lt;register name&gt;</strong></span></span><span style='font-family: "'><span style="font-size: medium;">_R</span></span></p>
-<p style='text-align: start;color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><span style="font-size: medium;">For example, the datasheet register</span><span style='font-family: "'><span style="font-size: medium;"> GPTM</span></span><span style='font-family: "'><span style="font-size: medium;"><strong>ICR</strong></span></span><span style="font-size: medium;">&nbsp;in Timer0 is converted to</span><span style='font-family: "'><span style="font-size: medium;"> TIMER0_</span></span><span style='font-family: "'><span style="font-size: medium;"><strong>ICR</strong></span></span><span style='font-family: "'><span style="font-size: medium;">_R</span></span><span style="font-size: medium;">&nbsp;in</span></p>
-<p style='text-align: start;color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><br></p>
-<p align="center" style='color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><a name="page7" style="color: var(--wp--preset--color--basecolor);"></a><span style="font-size: large;">ECE 3849 Lab 1</span></p>
-<p style='text-align: start;color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><br></p>
-<p style='text-align: start;color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><span style="font-size: medium;">C code. Similarly, the register fields are defined as:</span></p>
-<p style='text-align: start;color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><span style='font-family: "'><span style="font-size: medium;">&lt;C peripheral name&gt;_&lt;register name&gt;_&lt;field name&gt;</span></span></p>
-<p style='text-align: start;color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><span style="font-size: medium;">For example, the</span><span style='font-family: "'><span style="font-size: medium;"> TATOCINT</span></span><span style="font-size: medium;">&nbsp;(timer timeout interrupt) bit of the</span><span style='font-family: "'><span style="font-size: medium;"> GPTMICR</span></span><span style="font-size: medium;">&nbsp;register can be accessed using</span><span style='font-family: "'><span style="font-size: medium;"> TIMER_ICR_TATOCINT</span></span><span style="font-size: medium;">&nbsp;in C code.</span></p>
-<p align="justify" style='color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><span style="font-size: medium;">As before, it is convenient to browse the appropriate header files to locate the correct register definition. Ctrl+click on</span><span style='font-family: "'><span style="font-size: medium;"> ADC1_OSTAT_R</span></span><span style="font-size: medium;">&nbsp;to bring up a list of valid ADC1 registers available for direct access. You would still need to browse the TM4C1294NCPDT Datasheet to help locate the right registers to use, as the header file is not commented. Also see TivaWare Peripheral Driver Library User&rsquo;s Guide Chapter 2.2 for more information on direct register access.</span></p>
-<p align="justify" style='color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><span style="font-size: medium;">Create a new module (.c file), e.g. sampling.c, for your ADC initialization code and ISR. To this file, add the function to initialize ADC1. Also include in this file the ADC ISR. Once these have been completed, call the initialization code in main(), and place the ADC ISR in the appropriate&nbsp;</span><span style="font-size: medium;"><strong>interrupt vector</strong></span><span style="font-size: medium;">&nbsp;in tm4c1294ncpdt_startup_ccs.c.</span></p>
-<p align="justify" style='color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><span style="font-size: medium;">Now, run the code and verify the ISR is being called and</span><span style='font-family: "'><span style="font-size: medium;"> gADCErrors</span></span><span style="font-size: medium;">&nbsp;stays at 0. If the counter is steadily incrementing, try to find the cause. One possibility is incorrect interrupt priority assignment (the ADC ISR must preempt the button ISR; Lab0 has an explanation of interrupt priorities). If your signal source is connected, you should be able to observe the sampled waveform in</span><span style='font-family: "'><span style="font-size: medium;"> gADCBuffer</span></span><span style="font-size: medium;">&nbsp;using the debugger. Pause the program, and verify that&nbsp;</span><span style='font-family: "'><span style="font-size: medium;">gADCBuffer</span></span><span style="font-size: medium;">&nbsp;is filled with alternating periods of low ( &lt; 10) and high (&gt; 4086) values. To verify</span> <span style="font-size: medium;">it visually, go to Tools</span><span style="font-family: Arial, sans-serif;"><span style="font-size: medium;"> &rarr;</span></span><span style="font-size: medium;">&nbsp;Graph</span><span style="font-family: Arial, sans-serif;"><span style="font-size: medium;"> &rarr;</span></span><span style="font-size: medium;">&nbsp;&ldquo;Single Time.&rdquo; The lower-right graph is the PWM source.</span></p>
-<p style='text-align: start;color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><br></p>
-<p align="center" style='color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><a name="page8" style="color: var(--wp--preset--color--basecolor);"></a><span style="font-size: large;">ECE 3849 Lab 1</span></p>
-<p style='text-align: start;color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><br></p>
-<p style='text-align: start;color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><span style="color: rgb(67, 67, 67);"><span style="font-size: large;">Part 3: Draw Screen Background</span></span></p>
-<p align="justify" style='color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><span style="font-size: medium;">Now that we are reading ADC samples, we need something to draw them onto. Draw a grid on the screen with 20 pixels per division to display the signal onto.</span></p>
-<p align="justify" style='color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><span style="font-size: medium;">See the graphics library documentation for the various screen drawing functions. To change the color that is being drawn, call</span><span style='font-family: "'><span style="font-size: medium;"> GrContextForegroundSet</span></span><span style="font-size: medium;">&nbsp;before drawing to the screen. It is recommended you use a define, such as</span><span style='font-family: "'><span style="font-size: medium;"> PIXELS_PER_DIV</span></span><span style="font-size: medium;">&nbsp;to set the spacing between lines.</span></p>
-<p style='text-align: start;color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><span style="font-size: medium;">The final result should look something like the below figure:</span></p>
-<p style='text-align: start;color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><br></p>
-<p style='text-align: start;color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><span style="color: rgb(67, 67, 67);"><span style="font-size: large;">Part 4: Draw the Signal to the Screen</span></span></p>
-<p align="justify" style='color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><span style="font-size: medium;">Now that there&rsquo;s a grid for the signal to be drawn on, we should display the signal on the screen.</span></p>
-<p align="justify" style='color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><span style="font-size: medium;">As the ADC Buffer is constantly being overwritten by the ISR, we must take caution to ensure that we don&rsquo;t encounter any shared data bugs when drawing to the screen. To prevent the data being drawn to the screen from being overwritten, samples should be copied into a buffer, with the buffer then being drawn to the screen.</span></p>
-<p style='text-align: start;color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><br></p>
-<p align="center" style='color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><a name="page9" style="color: var(--wp--preset--color--basecolor);"></a><span style="font-size: large;">ECE 3849 Lab 1</span></p>
-<p style='text-align: start;color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><br></p>
-<p align="justify" style='color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><span style="font-size: medium;">It is also important to ensure the display on the screen is stable. If we simply drew directly from the buffer to the screen every frame, the display would constantly shift and be unreadable. To solve this problem, we will use a snapshot approach. Here, the user will press a button to take a &ldquo;snapshot&rdquo; of the most recent 128 samples, which will then be displayed to the screen. As copying from the samples to the display buffer will take some time, this should be implemented in the</span><span style='font-family: "'><span style="font-size: medium;"> main()</span></span><span style="font-size: medium;">&nbsp;function to avoid adding delay to the button ISR.</span></p>
-<p align="justify" style='color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><span style="font-size: medium;">The final detail that needs attention is scaling the samples to draw them on the screen. As the max range of the ADC is a product of the screen height, scaling can be implemented simply by dividing the sample values to be in the range of [0,</span><span style='font-family: "'><span style="font-size: medium;"> LCD_VERTICAL_MAX &ndash; 1</span></span><span style="font-size: medium;">]. In the next lab, we will implement a system to scale our samples to the divisions on the screen, as well as improving how we select samples to draw to the screen.</span></p>
-<p align="justify" style='color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><span style="font-size: medium;">Add new code to buttons.c to register a button press and signal</span><span style='font-family: "'><span style="font-size: medium;"> main()</span></span><span style="font-size: medium;">&nbsp;to copy the most recent 128 samples to a buffer. Scale the samples from this buffer and draw them on to the screen.</span></p>
-<p style='text-align: start;color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><span style="color: rgb(67, 67, 67);"><span style="font-size: large;">Part 10: Submitting Source Code</span></span></p>
-<p align="justify" style='color: rgb(0, 0, 1);background-color: rgb(255, 255, 254);font-size: 17.28px;font-family: -apple-system, BlinkMacSystemFont, "'><span style="font-size: medium;">Make sure your Lab 1 project is named &ldquo;</span><span style="font-size: medium;"><strong>ece3849_lab1_username</strong></span><span style="font-size: medium;">&rdquo; with your username substituted.&nbsp;</span><span style="font-size: medium;"><strong>Clean</strong></span><span style="font-size: medium;">&nbsp;your project (remove compiled code). Right click on your project and select &ldquo;Export&hellip;&rdquo; Select General</span><span style="font-family: Arial, sans-serif;"><span style="font-size: medium;"> &rarr;</span></span><span style="font-size: medium;">&nbsp;&ldquo;Archive File.&rdquo; Click Next. Click Browse. Find a location for you archive and specify the exact same file name as your project name. Click Finish. Submit the resulting .zip file to Canvas. This concludes Lab 1.</span></p>
+<p>
+	Your tasks are to find how to clear the interrupt flag that originally caused this ISR to be called, and to read in the ADC sample. You must do this using&nbsp;
+	<strong>
+		 direct register access
+	</strong>
+	 , not driver function calls. In this case the overhead associated with driver function calls is enough to start missing deadlines (you can verify this). To access registers directly, include&nbsp;&ldquo;inc/tm4c1294ncpdt.h&rdquo;.
+</p>
+<p>
+	To convert register names from the TM4C1294NCPDT Datasheet to C code:&nbsp;&lt;datasheet peripheral name&gt;
+	<strong>
+		 &lt;register name&gt;
+	</strong>
+	 &nbsp;&rarr; &lt;C peripheral name&gt;&lt;number&gt;_
+	<strong>
+		 &lt;register name&gt;
+	</strong>
+	 _R
+</p>
+<p>
+	For example, the datasheet register&nbsp;GPTM
+	<strong>
+		 ICR
+	</strong>
+	 &nbsp;in Timer0 is converted to&nbsp;TIMER0_
+	<strong>
+		 ICR
+	</strong>
+	 _R&nbsp;in
+</p>
+<p>
+	ECE 3849 Lab 1
+</p>
+<p>
+	C code. Similarly, the register fields are defined as:
+</p>
+<p>
+	&lt;C peripheral name&gt;_&lt;register name&gt;_&lt;field name&gt;
+</p>
+<p>
+	For example, the&nbsp;TATOCINT&nbsp;(timer timeout interrupt) bit of the&nbsp;GPTMICR&nbsp;register can be accessed using&nbsp;TIMER_ICR_TATOCINT&nbsp;in C code.
+</p>
+<p>
+	As before, it is convenient to browse the appropriate header files to locate the correct register definition. Ctrl+click on&nbsp;ADC1_OSTAT_R&nbsp;to bring up a list of valid ADC1 registers available for direct access. You would still need to browse the TM4C1294NCPDT Datasheet to help locate the right registers to use, as the header file is not commented. Also see TivaWare Peripheral Driver Library User&rsquo;s Guide Chapter 2.2 for more information on direct register access.
+</p>
+<p>
+	Create a new module (.c file), e.g. sampling.c, for your ADC initialization code and ISR. To this file, add the function to initialize ADC1. Also include in this file the ADC ISR. Once these have been completed, call the initialization code in main(), and place the ADC ISR in the appropriate&nbsp;
+	<strong>
+		 interrupt vector
+	</strong>
+	 &nbsp;in tm4c1294ncpdt_startup_ccs.c.
+</p>
+<p>
+	Now, run the code and verify the ISR is being called and&nbsp;gADCErrors&nbsp;stays at 0. If the counter is steadily incrementing, try to find the cause. One possibility is incorrect interrupt priority assignment (the ADC ISR must preempt the button ISR; Lab0 has an explanation of interrupt priorities). If your signal source is connected, you should be able to observe the sampled waveform in&nbsp;gADCBuffer&nbsp;using the debugger. Pause the program, and verify that&nbsp;gADCBuffer&nbsp;is filled with alternating periods of low ( &lt; 10) and high (&gt; 4086) values. To verify&nbsp;it visually, go to Tools&nbsp;&rarr;&nbsp;Graph&nbsp;&rarr;&nbsp;&ldquo;Single Time.&rdquo; The lower-right graph is the PWM source.
+</p>
+<p>
+	ECE 3849 Lab 1
+</p>
+<p>
+	Part 3: Draw Screen Background
+</p>
+<p>
+	Now that we are reading ADC samples, we need something to draw them onto. Draw a grid on the screen with 20 pixels per division to display the signal onto.
+</p>
+<p>
+	See the graphics library documentation for the various screen drawing functions. To change the color that is being drawn, call&nbsp;GrContextForegroundSet&nbsp;before drawing to the screen. It is recommended you use a define, such as&nbsp;PIXELS_PER_DIV&nbsp;to set the spacing between lines.
+</p>
+<p>
+	The final result should look something like the below figure:
+</p>
+<p>
+	Part 4: Draw the Signal to the Screen
+</p>
+<p>
+	Now that there&rsquo;s a grid for the signal to be drawn on, we should display the signal on the screen.
+</p>
+<p>
+	As the ADC Buffer is constantly being overwritten by the ISR, we must take caution to ensure that we don&rsquo;t encounter any shared data bugs when drawing to the screen. To prevent the data being drawn to the screen from being overwritten, samples should be copied into a buffer, with the buffer then being drawn to the screen.
+</p>
+<p>
+	ECE 3849 Lab 1
+</p>
+<p>
+	It is also important to ensure the display on the screen is stable. If we simply drew directly from the buffer to the screen every frame, the display would constantly shift and be unreadable. To solve this problem, we will use a snapshot approach. Here, the user will press a button to take a &ldquo;snapshot&rdquo; of the most recent 128 samples, which will then be displayed to the screen. As copying from the samples to the display buffer will take some time, this should be implemented in the&nbsp;main()&nbsp;function to avoid adding delay to the button ISR.
+</p>
+<p>
+	The final detail that needs attention is scaling the samples to draw them on the screen. As the max range of the ADC is a product of the screen height, scaling can be implemented simply by dividing the sample values to be in the range of [0,&nbsp;LCD_VERTICAL_MAX &ndash; 1]. In the next lab, we will implement a system to scale our samples to the divisions on the screen, as well as improving how we select samples to draw to the screen.
+</p>
+<p>
+	Add new code to buttons.c to register a button press and signal&nbsp;main()&nbsp;to copy the most recent 128 samples to a buffer. Scale the samples from this buffer and draw them on to the screen.
+</p>
+<p>
+	Part 10: Submitting Source Code
+</p>
+<p>
+	Make sure your Lab 1 project is named &ldquo;
+	<strong>
+		 ece3849_lab1_username
+	</strong>
+	 &rdquo; with your username substituted.&nbsp;
+	<strong>
+		 Clean
+	</strong>
+	 &nbsp;your project (remove compiled code). Right click on your project and select &ldquo;Export&hellip;&rdquo; Select General&nbsp;&rarr;&nbsp;&ldquo;Archive File.&rdquo; Click Next. Click Browse. Find a location for you archive and specify the exact same file name as your project name. Click Finish. Submit the resulting .zip file to Canvas. This concludes Lab 1.
+</p>
